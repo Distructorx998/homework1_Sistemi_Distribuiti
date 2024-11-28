@@ -9,7 +9,7 @@ def fetch_stock_price(ticker):
 
 def create_table_if_not_exists(cursor):
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS stock_prices (
+        CREATE TABLE IF NOT EXISTS stock_values (
             id INT AUTO_INCREMENT PRIMARY KEY,
             email VARCHAR(255) NOT NULL,
             ticker VARCHAR(10) NOT NULL,
@@ -37,7 +37,7 @@ def main():
         for email, ticker in users:
             try:
                 price = fetch_stock_price(ticker)
-                cursor.execute("INSERT INTO stock_prices (email, ticker, price, timestamp) VALUES (%s, %s, %s, NOW())",
+                cursor.execute("INSERT INTO stock_values (email, ticker, price, timestamp) VALUES (%s, %s, %s, NOW())",
                             (email, ticker, price))
                 conn.commit()
                 logging.error(f"Insert data for {email}, {ticker}: {price}") 

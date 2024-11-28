@@ -11,10 +11,9 @@ def run():
             print("1. Aggiungi Nuovo Utente")   
             print("2. Modifica Informazioni Utente")    
             print("3. Rimuovi Utente")  
-            print("4. Visualizza Tutti i Dati") 
-            print("5. Visualizza Ultimo Valore delle Azioni")
-            print("6. Calcola Valore Medio delle Azioni ")
-            print("7. Esci")    
+            print("4. Visualizza Ultimo Valore delle Azioni")
+            print("5. Calcola Valore Medio delle Azioni ")
+            print("6. Esci")    
             
             choice = input("Inserisci la tua scelta: ") 
 
@@ -46,15 +45,7 @@ def run():
                     except grpc.RpcError as e:
                         print(f"Errore gRPC: {e.code()} - {e.details()}")
 
-                case '4':
-                    try:
-                        response = stub.GetAllData(user_pb2.Empty())
-                        print("Risposta AllData:")
-                        for data in response.data:
-                            print(data)
-                    except grpc.RpcError as e:
-                        print(f"Errore gRPC: {e.code()} - {e.details()}")
-
+               
                 case '5':
                     try:
                         email = input("Inserisci l'email: ")

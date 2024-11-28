@@ -36,7 +36,7 @@ class UserService(user_pb2_grpc.UserServiceServicer):
         cursor = self.conn.cursor()
         cursor.execute('''CREATE TABLE IF NOT EXISTS users
                           (email VARCHAR(255) PRIMARY KEY, ticker VARCHAR(255))''')
-        cursor.execute('''CREATE TABLE IF NOT EXISTS stock_prices
+        cursor.execute('''CREATE TABLE IF NOT EXISTS stock_values
                           (id INT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255), ticker VARCHAR(255), price FLOAT, timestamp TIMESTAMP, FOREIGN KEY (email) REFERENCES users(email))''')
         cursor.close()
 
@@ -161,7 +161,7 @@ class UserService(user_pb2_grpc.UserServiceServicer):
         cursor = self.conn.cursor()
         try:
             cursor.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED") 
-            cursor.execute("SELECT price FROM stock_prices WHERE email = %s ORDER BY timestamp DESC LIMIT 1", (normalized_email,))
+            cursor.execute("SELECT price FROM stock_values WHERE email = %s ORDER BY timestamp DESC LIMIT 1", (normalized_email,))
             result = cursor.fetchone()
             if result:
                 return user_pb2.StockValueResponse(message="Last stock value retrieved successfully", value=result[0])
@@ -183,7 +183,7 @@ class UserService(user_pb2_grpc.UserServiceServicer):
             user_ticker = cursor.fetchone()
             
             if user_ticker:
-                cursor.execute("SELECT price FROM stock_prices WHERE email = %s AND ticker = %s ORDER BY timestamp DESC LIMIT %s", 
+                cursor.execute("SELECT price FROM stock_values WHERE email = %s AND ticker = %s ORDER BY timestamp DESC LIMIT %s", 
                             (normalized_email, user_ticker[0], request.count))
                 results = cursor.fetchall()
                 if results:
