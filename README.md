@@ -1,4 +1,3 @@
----
 ## **Guida al build & deploy**
 ### **Prequisiti**
 Assicurarsi che siano installati i seguenti elementi:
