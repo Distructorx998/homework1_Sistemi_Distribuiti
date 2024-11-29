@@ -8,9 +8,8 @@ Assicurarsi che siano installati i seguenti elementi:
   - grpcio-tools
   - mysql-connector-python
   - yfinance
-  - pybreaker (per il Circuit Breaker)
-    
-### **Passi**
+  - pybreaker (per il Circuit Breaker)    
+### **Passaggi**
  ```
 1. **Costruire le immagini Docker**
  Eseguire il seguente comando per costruire tutti i servizi:
