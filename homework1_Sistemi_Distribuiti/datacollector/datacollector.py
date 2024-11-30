@@ -2,6 +2,9 @@ import time
 import mysql.connector
 import yfinance as yf
 import logging
+from circuit_breaker import CircuitBreaker
+
+circuit_breaker = CircuitBreaker(failure_threshold=5, recovery_timeout=30)
 
 def fetch_stock_price(ticker):
     stock = yf.Ticker(ticker)
@@ -36,15 +39,13 @@ def main():
 
         for email, ticker in users:
             try:
-                price = fetch_stock_price(ticker)
-                cursor.execute("INSERT INTO stock_values (email, ticker, price, timestamp) VALUES (%s, %s, %s, NOW())",
-                            (email, ticker, price))
+                price = circuit_breaker.call(fetch_stock_price, ticker)
+                cursor.execute("INSERT INTO stock_prices (email, ticker, price, timestamp) VALUES (%s, %s, %s, NOW())",
+                               (email, ticker, price))
                 conn.commit()
-                logging.error(f"Insert data for {email}, {ticker}: {price}") 
-                
             except Exception as e:
                 print(f"Error fetching data for {ticker}: {e}")
-        time.sleep(90)
+        time.sleep(3600)  # Wait for 1 hour before fetching data again
 
 if __name__ == "__main__":
     main()
