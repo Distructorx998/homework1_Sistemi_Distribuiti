@@ -9,6 +9,8 @@ Assicurarsi che siano installati i seguenti elementi:
   - yfinance
   - pybreaker (per il Circuit Breaker)    
 ### **Passaggi**
+Portarsi da terminale al percorso .\homework1_Sistemi_Distribuiti
+
  ```
 1. **Costruire le immagini Docker**
  Eseguire il seguente comando per costruire tutti i servizi:
