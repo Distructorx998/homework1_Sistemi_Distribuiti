@@ -2,12 +2,7 @@
 ### **Prequisiti**
 Assicurarsi che siano installati i seguenti elementi:
 - **Docker**
-- **Python** con i pacchetti:
-  - grpcio
-  - grpcio-tools
-  - mysql-connector-python
-  - yfinance
-  - pybreaker (per il Circuit Breaker)    
+- **DockerCompose**    
 ### **Passaggi**
 Portarsi da terminale al percorso .\homework1_Sistemi_Distribuiti
 
