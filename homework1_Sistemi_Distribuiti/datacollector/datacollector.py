@@ -2,7 +2,27 @@ import time
 import mysql.connector
 import yfinance as yf
 import logging
+import json
+from datetime import datetime
 from circuit_breaker import CircuitBreaker
+from confluent_kafka import Producer
+
+producer_config = {
+    'bootstrap.servers': 'kafka:29092',
+    'acks': 'all',
+    'batch.size': 500,
+    'max.in.flight.requests.per.connection': 1,
+    'retries': 3
+}
+
+producer = Producer(producer_config)
+topic1 = 'to-alert-system'
+
+def update_completed(err, msg):
+    if err:
+        print(f"Delivery failed: {err}")
+    else:
+        print(f"Message delivered to {msg.topic()} [{msg.partition()}] at offset {msg.offset()}")
 
 circuit_breaker = CircuitBreaker(failure_threshold=5, recovery_timeout=30)
 
@@ -29,23 +49,40 @@ def main():
         database="users"
     )
     cursor = conn.cursor()
-    
     create_table_if_not_exists(cursor)
     
     while True:
-        cursor.execute("SELECT email, ticker FROM users")
-        users = cursor.fetchall()
-        logging.error(f"Users fetched from database: {users}")
-
-        for email, ticker in users:
-            try:
-                price = circuit_breaker.call(fetch_stock_price, ticker)
-                cursor.execute("INSERT INTO stock_prices (email, ticker, price, timestamp) VALUES (%s, %s, %s, NOW())",
-                               (email, ticker, price))
-                conn.commit()
-            except Exception as e:
-                print(f"Error fetching data for {ticker}: {e}")
-        time.sleep(3600)  # Wait for 1 hour before fetching data again
+        try:
+            cursor.execute("SELECT email, ticker FROM users")
+            users = cursor.fetchall()
+            logging.info(f"Users fetched from database: {users}")
+            
+            timestamp = datetime.now().isoformat()
+            messaggio = 'fase di aggiornamento dei valori è stata completata'
+            message = {'timestamp': timestamp, 'messaggio': messaggio}
+            
+            for email, ticker in users:
+                try:
+                    price = circuit_breaker.call(fetch_stock_price, ticker)
+                    cursor.execute("INSERT INTO stock_values (email, ticker, price, timestamp) VALUES (%s, %s, %s, NOW())",
+                                   (email, ticker, price))
+                    conn.commit()
+                    producer.produce(topic1, json.dumps(message), callback=update_completed)
+                except Exception as e:
+                    logging.error(f"Error fetching data for {ticker}: {e}")
+            
+            producer.flush()
+        except mysql.connector.Error as e:
+            logging.error(f"Database error: {e}")
+            conn = mysql.connector.connect(
+                host="db",
+                user="user",
+                password="password",
+                database="users"
+            )
+            cursor = conn.cursor()
+        time.sleep(3600)
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     main()

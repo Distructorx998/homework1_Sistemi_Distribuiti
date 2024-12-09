@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nuser.proto\x12\x04user\"4\n\x13RegisterUserRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\x12\x0e\n\x06ticker\x18\x02 \x01(\t\"\'\n\x14RegisterUserResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"2\n\x11UpdateUserRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\x12\x0e\n\x06ticker\x18\x02 \x01(\t\"%\n\x12UpdateUserResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"\"\n\x11\x44\x65leteUserRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"%\n\x12\x44\x65leteUserResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"\x07\n\x05\x45mpty\"\x1d\n\x0c\x45mailRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"3\n\x13\x41verageStockRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"4\n\x12StockValueResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x02\"\x1f\n\x0f\x41llDataResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x03(\t2\x98\x03\n\x0bUserService\x12\x45\n\x0cRegisterUser\x12\x19.user.RegisterUserRequest\x1a\x1a.user.RegisterUserResponse\x12?\n\nUpdateUser\x12\x17.user.UpdateUserRequest\x1a\x18.user.UpdateUserResponse\x12?\n\nDeleteUser\x12\x17.user.DeleteUserRequest\x1a\x18.user.DeleteUserResponse\x12\x30\n\nGetAllData\x12\x0b.user.Empty\x1a\x15.user.AllDataResponse\x12\x41\n\x11GetLastStockValue\x12\x12.user.EmailRequest\x1a\x18.user.StockValueResponse\x12K\n\x14GetAverageStockValue\x12\x19.user.AverageStockRequest\x1a\x18.user.StockValueResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nuser.proto\x12\x04user\"[\n\x13RegisterUserRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\x12\x0e\n\x06ticker\x18\x02 \x01(\t\x12\x11\n\tlow_value\x18\x03 \x01(\x02\x12\x12\n\nhigh_value\x18\x04 \x01(\x02\"\'\n\x14RegisterUserResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"Y\n\x11UpdateUserRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\x12\x0e\n\x06ticker\x18\x02 \x01(\t\x12\x11\n\tlow_value\x18\x03 \x01(\x02\x12\x12\n\nhigh_value\x18\x04 \x01(\x02\"%\n\x12UpdateUserResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"\"\n\x11\x44\x65leteUserRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"%\n\x12\x44\x65leteUserResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"\x07\n\x05\x45mpty\"\x1d\n\x0c\x45mailRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"3\n\x13\x41verageStockRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"4\n\x12StockValueResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x02\"\x1f\n\x0f\x41llDataResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x03(\t\"N\n\x16UpdateThresholdRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\x12\x11\n\tlow_value\x18\x03 \x01(\x02\x12\x12\n\nhigh_value\x18\x04 \x01(\x02\"*\n\x17UpdateThresholdResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"N\n\x16RemoveThresholdRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\x12\x11\n\tlow_value\x18\x02 \x01(\x02\x12\x12\n\nhigh_value\x18\x03 \x01(\x02\"*\n\x17RemoveThresholdResponse\x12\x0f\n\x07message\x18\x01 \x01(\t2\xb8\x04\n\x0bUserService\x12\x45\n\x0cRegisterUser\x12\x19.user.RegisterUserRequest\x1a\x1a.user.RegisterUserResponse\x12?\n\nUpdateUser\x12\x17.user.UpdateUserRequest\x1a\x18.user.UpdateUserResponse\x12?\n\nDeleteUser\x12\x17.user.DeleteUserRequest\x1a\x18.user.DeleteUserResponse\x12\x30\n\nGetAllData\x12\x0b.user.Empty\x1a\x15.user.AllDataResponse\x12\x41\n\x11GetLastStockValue\x12\x12.user.EmailRequest\x1a\x18.user.StockValueResponse\x12K\n\x14GetAverageStockValue\x12\x19.user.AverageStockRequest\x1a\x18.user.StockValueResponse\x12N\n\x0fUpdateThreshold\x12\x1c.user.UpdateThresholdRequest\x1a\x1d.user.UpdateThresholdResponse\x12N\n\x0fRemoveThreshold\x12\x1c.user.RemoveThresholdRequest\x1a\x1d.user.RemoveThresholdResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,27 +32,35 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'user_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_REGISTERUSERREQUEST']._serialized_start=20
-  _globals['_REGISTERUSERREQUEST']._serialized_end=72
-  _globals['_REGISTERUSERRESPONSE']._serialized_start=74
-  _globals['_REGISTERUSERRESPONSE']._serialized_end=113
-  _globals['_UPDATEUSERREQUEST']._serialized_start=115
-  _globals['_UPDATEUSERREQUEST']._serialized_end=165
-  _globals['_UPDATEUSERRESPONSE']._serialized_start=167
-  _globals['_UPDATEUSERRESPONSE']._serialized_end=204
-  _globals['_DELETEUSERREQUEST']._serialized_start=206
-  _globals['_DELETEUSERREQUEST']._serialized_end=240
-  _globals['_DELETEUSERRESPONSE']._serialized_start=242
-  _globals['_DELETEUSERRESPONSE']._serialized_end=279
-  _globals['_EMPTY']._serialized_start=281
-  _globals['_EMPTY']._serialized_end=288
-  _globals['_EMAILREQUEST']._serialized_start=290
-  _globals['_EMAILREQUEST']._serialized_end=319
-  _globals['_AVERAGESTOCKREQUEST']._serialized_start=321
-  _globals['_AVERAGESTOCKREQUEST']._serialized_end=372
-  _globals['_STOCKVALUERESPONSE']._serialized_start=374
-  _globals['_STOCKVALUERESPONSE']._serialized_end=426
-  _globals['_ALLDATARESPONSE']._serialized_start=428
-  _globals['_ALLDATARESPONSE']._serialized_end=459
-  _globals['_USERSERVICE']._serialized_start=462
-  _globals['_USERSERVICE']._serialized_end=870
+  _globals['_REGISTERUSERREQUEST']._serialized_end=111
+  _globals['_REGISTERUSERRESPONSE']._serialized_start=113
+  _globals['_REGISTERUSERRESPONSE']._serialized_end=152
+  _globals['_UPDATEUSERREQUEST']._serialized_start=154
+  _globals['_UPDATEUSERREQUEST']._serialized_end=243
+  _globals['_UPDATEUSERRESPONSE']._serialized_start=245
+  _globals['_UPDATEUSERRESPONSE']._serialized_end=282
+  _globals['_DELETEUSERREQUEST']._serialized_start=284
+  _globals['_DELETEUSERREQUEST']._serialized_end=318
+  _globals['_DELETEUSERRESPONSE']._serialized_start=320
+  _globals['_DELETEUSERRESPONSE']._serialized_end=357
+  _globals['_EMPTY']._serialized_start=359
+  _globals['_EMPTY']._serialized_end=366
+  _globals['_EMAILREQUEST']._serialized_start=368
+  _globals['_EMAILREQUEST']._serialized_end=397
+  _globals['_AVERAGESTOCKREQUEST']._serialized_start=399
+  _globals['_AVERAGESTOCKREQUEST']._serialized_end=450
+  _globals['_STOCKVALUERESPONSE']._serialized_start=452
+  _globals['_STOCKVALUERESPONSE']._serialized_end=504
+  _globals['_ALLDATARESPONSE']._serialized_start=506
+  _globals['_ALLDATARESPONSE']._serialized_end=537
+  _globals['_UPDATETHRESHOLDREQUEST']._serialized_start=539
+  _globals['_UPDATETHRESHOLDREQUEST']._serialized_end=617
+  _globals['_UPDATETHRESHOLDRESPONSE']._serialized_start=619
+  _globals['_UPDATETHRESHOLDRESPONSE']._serialized_end=661
+  _globals['_REMOVETHRESHOLDREQUEST']._serialized_start=663
+  _globals['_REMOVETHRESHOLDREQUEST']._serialized_end=741
+  _globals['_REMOVETHRESHOLDRESPONSE']._serialized_start=743
+  _globals['_REMOVETHRESHOLDRESPONSE']._serialized_end=785
+  _globals['_USERSERVICE']._serialized_start=788
+  _globals['_USERSERVICE']._serialized_end=1356
 # @@protoc_insertion_point(module_scope)

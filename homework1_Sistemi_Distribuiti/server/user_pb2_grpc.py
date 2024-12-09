@@ -64,6 +64,16 @@ class UserServiceStub(object):
                 request_serializer=user__pb2.AverageStockRequest.SerializeToString,
                 response_deserializer=user__pb2.StockValueResponse.FromString,
                 _registered_method=True)
+        self.UpdateThreshold = channel.unary_unary(
+                '/user.UserService/UpdateThreshold',
+                request_serializer=user__pb2.UpdateThresholdRequest.SerializeToString,
+                response_deserializer=user__pb2.UpdateThresholdResponse.FromString,
+                _registered_method=True)
+        self.RemoveThreshold = channel.unary_unary(
+                '/user.UserService/RemoveThreshold',
+                request_serializer=user__pb2.RemoveThresholdRequest.SerializeToString,
+                response_deserializer=user__pb2.RemoveThresholdResponse.FromString,
+                _registered_method=True)
 
 
 class UserServiceServicer(object):
@@ -105,6 +115,18 @@ class UserServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def UpdateThreshold(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def RemoveThreshold(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_UserServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -137,6 +159,16 @@ def add_UserServiceServicer_to_server(servicer, server):
                     servicer.GetAverageStockValue,
                     request_deserializer=user__pb2.AverageStockRequest.FromString,
                     response_serializer=user__pb2.StockValueResponse.SerializeToString,
+            ),
+            'UpdateThreshold': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateThreshold,
+                    request_deserializer=user__pb2.UpdateThresholdRequest.FromString,
+                    response_serializer=user__pb2.UpdateThresholdResponse.SerializeToString,
+            ),
+            'RemoveThreshold': grpc.unary_unary_rpc_method_handler(
+                    servicer.RemoveThreshold,
+                    request_deserializer=user__pb2.RemoveThresholdRequest.FromString,
+                    response_serializer=user__pb2.RemoveThresholdResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -301,6 +333,60 @@ class UserService(object):
             '/user.UserService/GetAverageStockValue',
             user__pb2.AverageStockRequest.SerializeToString,
             user__pb2.StockValueResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UpdateThreshold(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/user.UserService/UpdateThreshold',
+            user__pb2.UpdateThresholdRequest.SerializeToString,
+            user__pb2.UpdateThresholdResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def RemoveThreshold(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/user.UserService/RemoveThreshold',
+            user__pb2.RemoveThresholdRequest.SerializeToString,
+            user__pb2.RemoveThresholdResponse.FromString,
             options,
             channel_credentials,
             insecure,

@@ -9,11 +9,15 @@ service UserService {
   rpc GetAllData (Empty) returns (AllDataResponse);
   rpc GetLastStockValue (EmailRequest) returns (StockValueResponse);
   rpc GetAverageStockValue (AverageStockRequest) returns (StockValueResponse);
+  rpc UpdateThreshold (UpdateThresholdRequest) returns (UpdateThresholdResponse);
+  rpc RemoveThreshold (RemoveThresholdRequest) returns (RemoveThresholdResponse);
 }
 
 message RegisterUserRequest {
   string email = 1;
   string ticker = 2;
+  float low_value = 3;
+  float high_value = 4;
 }
 
 message RegisterUserResponse {
@@ -23,6 +27,8 @@ message RegisterUserResponse {
 message UpdateUserRequest {
   string email = 1;
   string ticker = 2;
+  float low_value = 3;
+  float high_value = 4;
 }
 
 message UpdateUserResponse {
@@ -55,4 +61,24 @@ message StockValueResponse {
 
 message AllDataResponse {
   repeated string data = 1;
+}
+
+message UpdateThresholdRequest {
+  string email = 1;
+  float low_value = 3;
+  float high_value = 4;
+}
+
+message UpdateThresholdResponse {
+  string message = 1;
+}
+
+message RemoveThresholdRequest{
+  string email = 1;
+  float low_value = 2;
+  float high_value = 3;
+}
+
+message RemoveThresholdResponse{
+  string message= 1;
 }
