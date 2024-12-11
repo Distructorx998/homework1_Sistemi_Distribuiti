@@ -8,7 +8,7 @@ from circuit_breaker import CircuitBreaker
 from confluent_kafka import Producer
 
 producer_config = {
-    'bootstrap.servers': 'kafka:29092',
+    'bootstrap.servers': 'kafka:9092',
     'acks': 'all',
     'batch.size': 500,
     'max.in.flight.requests.per.connection': 1,
@@ -18,11 +18,12 @@ producer_config = {
 producer = Producer(producer_config)
 topic1 = 'to-alert-system'
 
+# Callback per confermare l'invio del messaggio
 def update_completed(err, msg):
     if err:
-        print(f"Delivery failed: {err}")
+        logging.error(f"Delivery failed: {err}")
     else:
-        print(f"Message delivered to {msg.topic()} [{msg.partition()}] at offset {msg.offset()}")
+        logging.info(f"Message delivered to {msg.topic()} [{msg.partition()}] at offset {msg.offset()}")
 
 circuit_breaker = CircuitBreaker(failure_threshold=5, recovery_timeout=30)
 
@@ -67,10 +68,12 @@ def main():
                     cursor.execute("INSERT INTO stock_values (email, ticker, price, timestamp) VALUES (%s, %s, %s, NOW())",
                                    (email, ticker, price))
                     conn.commit()
-                    producer.produce(topic1, json.dumps(message), callback=update_completed)
                 except Exception as e:
                     logging.error(f"Error fetching data for {ticker}: {e}")
             
+            # Produzione del messaggio con conferma
+            producer.produce(topic1, json.dumps(message), callback=update_completed)
+            logging.info(f"Message sent to Kafka topic '{topic1}': {message}")
             producer.flush()
         except mysql.connector.Error as e:
             logging.error(f"Database error: {e}")
@@ -81,7 +84,7 @@ def main():
                 database="users"
             )
             cursor = conn.cursor()
-        time.sleep(3600)
+        time.sleep(60)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

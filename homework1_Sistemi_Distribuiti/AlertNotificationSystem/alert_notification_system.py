@@ -2,11 +2,16 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import json
-from confluent_kafka import Consumer
+from confluent_kafka import Consumer, KafkaException, KafkaError
+import time
+import logging
+
+# Configurazione dei log
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Configurazione del consumer Kafka
 consumer_config = {
-    'bootstrap.servers': 'localhost:29092',
+    'bootstrap.servers': 'kafka:9092',
     'group.id': 'email-notification-group',
     'auto.offset.reset': 'earliest'
 }
@@ -14,15 +19,30 @@ consumer_config = {
 # Configurazione SMTP per inviare email
 SMTP_SERVER = 'smtp.gmail.com'  # Ad esempio, server SMTP di Gmail
 SMTP_PORT = 587
-SMTP_USERNAME = 'hw2.giu.sofi@gmail.com'  # Inserire l'email del mittente
-SMTP_PASSWORD = '8volteAA'  # Inserire la password del mittente (o app-specific password)
+SMTP_USERNAME = 'distructorx@gmail.com'  # Inserire l'email del mittente
+SMTP_PASSWORD = 'tlkaetutxjeahlyu'  # Inserire la password del mittente (o app-specific password)
 
-# Creazione del consumer Kafka
-consumer = Consumer(consumer_config)
-
-# Sottoscrizione al topic di input
+# Nome del topic da verificare e sottoscrivere
 topic = 'to-notifier'
-consumer.subscribe([topic])
+
+# Funzione per verificare la disponibilità di Kafka e del topic
+def wait_for_kafka(bootstrap_servers, topic, timeout=60):
+    """Aspetta che Kafka sia pronto e che il topic esista."""
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        try:
+            consumer = Consumer({'bootstrap.servers': bootstrap_servers, 'group.id': 'health-check'})
+            metadata = consumer.list_topics(timeout=5.0)
+            if topic in metadata.topics:
+                logging.info(f"Kafka è pronto e il topic '{topic}' esiste.")
+                consumer.close()
+                return True
+            else:
+                logging.warning(f"Topic '{topic}' non trovato. Riprovo...")
+        except KafkaException as e:
+            logging.error(f"Errore durante la verifica di Kafka: {e}")
+        time.sleep(5)
+    raise RuntimeError(f"Kafka non è pronto o il topic '{topic}' non esiste entro il tempo massimo.")
 
 # Funzione per inviare email
 def send_email(to_email, subject, body):
@@ -40,24 +60,34 @@ def send_email(to_email, subject, body):
             server.login(SMTP_USERNAME, SMTP_PASSWORD)
             server.sendmail(SMTP_USERNAME, to_email, msg.as_string())
 
-        print(f"Email inviata con successo a {to_email}")
+        logging.info(f"Email inviata con successo a {to_email}")
     except Exception as e:
-        print(f"Errore durante l'invio dell'email a {to_email}: {e}")
+        logging.error(f"Errore durante l'invio dell'email a {to_email}: {e}")
+
+# Verifica Kafka
+logging.info("Verificando la disponibilità di Kafka...")
+wait_for_kafka(consumer_config['bootstrap.servers'], topic)
+
+# Creazione del consumer Kafka
+consumer = Consumer(consumer_config)
+logging.info(f"Sottoscrizione al topic '{topic}'...")
+consumer.subscribe([topic])
 
 # Ciclo principale per consumare messaggi
+logging.info("Inizio del ciclo principale per consumare i messaggi...")
 while True:
     # Poll per ricevere nuovi messaggi
     msg = consumer.poll(1.0)
     if msg is None:
         continue  # Nessun messaggio ricevuto
     if msg.error():
-        print(f"Errore del consumer: {msg.error()}")
+        logging.error(f"Errore del consumer: {msg.error()}")
         continue
 
     try:
         # Parsing del messaggio ricevuto
         data = json.loads(msg.value().decode('utf-8'))
-        print(f"Messaggio ricevuto: {data}")
+        logging.info(f"Messaggio ricevuto: {data}")
 
         # Estrazione dei parametri dal messaggio
         email = data.get('email')
@@ -65,7 +95,7 @@ while True:
         condition = data.get('condition')
 
         if not email or not ticker or not condition:
-            print("Messaggio non valido, mancano campi obbligatori")
+            logging.warning("Messaggio non valido, mancano campi obbligatori")
             continue
 
         # Creazione dei contenuti dell'email
@@ -76,7 +106,8 @@ while True:
         send_email(email, subject, body)
 
     except Exception as e:
-        print(f"Errore durante l'elaborazione del messaggio: {e}")
+        logging.error(f"Errore durante l'elaborazione del messaggio: {e}")
 
 # Chiudi il consumer quando il processo termina
 consumer.close()
+logging.info("Consumer chiuso.")
