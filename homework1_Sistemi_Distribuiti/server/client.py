@@ -1,158 +1,283 @@
 import grpc
+import sys
 import user_pb2
 import user_pb2_grpc
 
-def run():
-    with grpc.insecure_channel('localhost:50051') as channel:
-        stub = user_pb2_grpc.UserServiceStub(channel)
+class StockMonitorClient:
+    def __init__(self, host='localhost', port=50051):
+        """
+        Inizializza il client gRPC con un canale di comunicazione
+        
+        :param host: Indirizzo del server (default: localhost)
+        :param port: Porta del server (default: 50051)
+        """
+        self.channel = grpc.insecure_channel(f'{host}:{port}')
+        self.command_stub = user_pb2_grpc.UserCommandServiceStub(self.channel)
+        self.query_stub = user_pb2_grpc.UserQueryServiceStub(self.channel)
 
-        while True:
-            print("\nMenu:")
-            print("1. Aggiungi Nuovo Utente")   
-            print("2. Modifica Tiker")
-            print("3. Modifica Soglie:")
-            print("4. Rimuovi Utente")  
-            print("5. Visualizza Ultimo Valore delle Azioni")
-            print("6. Calcola Valore Medio delle Azioni ")
-            print("7. Visualizza Utente ")
-            print("8. Visualizza Tutti gli Utenti")            
-            print("9. Esci")    
-            
-            choice = input("Inserisci la tua scelta: ") 
+    def register_user(self, email, ticker, low_value=None, high_value=None):
+        """
+        Registra un nuovo utente
+        
+        :param email: Email dell'utente
+        :param ticker: Ticker delle azioni
+        :param low_value: Soglia minima (opzionale)
+        :param high_value: Soglia massima (opzionale)
+        """
+        try:
+            request = user_pb2.RegisterUserRequest(
+                email=email, 
+                ticker=ticker, 
+                low_value=low_value if low_value is not None else 0, 
+                high_value=high_value if high_value is not None else 0
+            )
+            response = self.command_stub.RegisterUser(request)
+            print("Risposta RegisterUser:", response.message)
+        except grpc.RpcError as e:
+            print(f"Errore gRPC: {e.code()} - {e.details()}")
 
+    def update_user(self, email, ticker, low_value=None, high_value=None):
+        """
+        Aggiorna i dettagli di un utente esistente
+        
+        :param email: Email dell'utente
+        :param ticker: Nuovo ticker delle azioni
+        :param low_value: Nuova soglia minima (opzionale)
+        :param high_value: Nuova soglia massima (opzionale)
+        """
+        try:
+            request = user_pb2.UpdateUserRequest(
+                email=email, 
+                ticker=ticker, 
+                low_value=low_value if low_value is not None else 0, 
+                high_value=high_value if high_value is not None else 0
+            )
+            response = self.command_stub.UpdateUser(request)
+            print("Risposta UpdateUser:", response.message)
+        except grpc.RpcError as e:
+            print(f"Errore gRPC: {e.code()} - {e.details()}")
 
+    def delete_user(self, email):
+        """
+        Rimuove un utente
+        
+        :param email: Email dell'utente da rimuovere
+        """
+        try:
+            request = user_pb2.DeleteUserRequest(email=email)
+            response = self.command_stub.DeleteUser(request)
+            print("Risposta DeleteUser:", response.message)
+        except grpc.RpcError as e:
+            print(f"Errore gRPC: {e.code()} - {e.details()}")
+
+    def update_threshold(self, email, low_value=None, high_value=None):
+        """
+        Aggiorna le soglie di un utente
+        
+        :param email: Email dell'utente
+        :param low_value: Nuova soglia minima (opzionale)
+        :param high_value: Nuova soglia massima (opzionale)
+        """
+        try:
+            request = user_pb2.UpdateThresholdRequest(
+                email=email, 
+                low_value=low_value if low_value is not None else 0, 
+                high_value=high_value if high_value is not None else 0
+            )
+            response = self.command_stub.UpdateThreshold(request)
+            print("Risposta UpdateThreshold:", response.message)
+        except grpc.RpcError as e:
+            print(f"Errore gRPC: {e.code()} - {e.details()}")
+
+    def remove_threshold(self, email, remove_low=False, remove_high=False):
+        """
+        Rimuove le soglie di un utente
+        
+        :param email: Email dell'utente
+        :param remove_low: Rimuove la soglia minima se True
+        :param remove_high: Rimuove la soglia massima se True
+        """
+        try:
+            request = user_pb2.RemoveThresholdRequest(
+                email=email, 
+                low_value=0 if remove_low else None, 
+                high_value=0 if remove_high else None
+            )
+            response = self.command_stub.RemoveThreshold(request)
+            print("Risposta RemoveThreshold:", response.message)
+        except grpc.RpcError as e:
+            print(f"Errore gRPC: {e.code()} - {e.details()}")
+
+    def get_last_stock_value(self, email):
+        """
+        Recupera l'ultimo valore delle azioni per un utente
+        
+        :param email: Email dell'utente
+        :return: Valore delle azioni
+        """
+        try:
+            request = user_pb2.EmailRequest(email=email)
+            response = self.query_stub.GetLastStockValue(request)
+            print(f"Risposta LastStockValue: {response.message} Valore: {response.value}")
+            return response.value
+        except grpc.RpcError as e:
+            print(f"Errore gRPC: {e.code()} - {e.details()}")
+            return None
+
+    def get_average_stock_value(self, email, count):
+        """
+        Calcola il valore medio delle azioni per un utente
+        
+        :param email: Email dell'utente
+        :param count: Numero di valori per calcolare la media
+        :return: Valore medio delle azioni
+        """
+        try:
+            request = user_pb2.AverageStockRequest(email=email, count=count)
+            response = self.query_stub.GetAverageStockValue(request)
+            print(f"Risposta AverageStockValue: {response.message} Valore: {response.value}")
+            return response.value
+        except grpc.RpcError as e:
+            print(f"Errore gRPC: {e.code()} - {e.details()}")
+            return None
+
+    def get_all_data(self):
+        """
+        Recupera tutti i dati degli utenti
+        
+        :return: Lista di dati degli utenti
+        """
+        try:
+            request = user_pb2.Empty()
+            response = self.query_stub.GetAllData(request)
+            print("Risposta Tutti Gli Utenti:")
+            if not response.data:
+                print("Nessun dato trovato.")
+            else:
+                for data in response.data:
+                    print(data)
+            return list(response.data)
+        except grpc.RpcError as e:
+            print(f"Errore gRPC: {e.code()} - {e.details()}")
+            return []
+
+def main():
+    """
+    Funzione principale per l'interfaccia a riga di comando
+    """
+    client = StockMonitorClient()
+
+    while True:
+        print("\nMenu:")
+        print("1. Aggiungi Nuovo Utente")   
+        print("2. Modifica Ticker")
+        print("3. Modifica Soglie")
+        print("4. Rimuovi Utente")  
+        print("5. Visualizza Ultimo Valore delle Azioni")
+        print("6. Calcola Valore Medio delle Azioni")
+        print("7. Visualizza Tutti gli Utenti")            
+        print("8. Esci")    
+        
+        choice = input("Inserisci la tua scelta: ")
+
+        try:
             match choice:
                 case '1':
-                    try:
-                        email = input("Inserisci email: ")
-                        ticker = input("Inserisci ticker: ")
-                       
-                        low_value_input = input("Inserisci soglia minima (premi invio per non specificare il valore della soglia):")
-                        high_value_input = input("Inserisci soglia massima (premi invio per non specificare il valore della soglia):")
+                    email = input("Inserisci email: ")
+                    ticker = input("Inserisci ticker: ")
+                    
+                    low_value_input = input("Inserisci soglia minima (premi invio per non specificare): ")
+                    high_value_input = input("Inserisci soglia massima (premi invio per non specificare): ")
 
-                        low_value = float(low_value_input) if low_value_input else None
-                        high_value = float(high_value_input) if high_value_input else None
-                        
-                        # Verifica che la soglia minima non sia maggiore di quella massima
-                        if low_value is not None and high_value is not None and low_value > high_value:
-                            print("Errore, hai inserito un valore di soglia minima maggiore di quello di soglia massima")
-                            break 
-                        response = stub.RegisterUser(user_pb2.RegisterUserRequest(email=email, ticker=ticker, low_value=low_value, high_value=high_value))
-                        print("Risposta RegisterUser:", response.message)
-                    except grpc.RpcError as e:
-                        print(f"Errore gRPC: {e.code()} - {e.details()}")
+                    low_value = float(low_value_input) if low_value_input else None
+                    high_value = float(high_value_input) if high_value_input else None
+                    
+                    # Verifica che la soglia minima non sia maggiore di quella massima
+                    if (low_value is not None and high_value is not None and low_value > high_value):
+                        print("Errore: soglia minima maggiore di quella massima")
+                        continue
+
+                    client.register_user(email, ticker, low_value, high_value)
 
                 case '2':
-                    try:
-                        email = input("Inserisci email: ")
-                        ticker = input("Inserisci nuovo ticker: ")
-                        
-                        # Input per le soglie con gestione del valore di default
-                        low_value_input = input("Inserisci soglia minima (premi invio per non specificare il valore della soglia):")
-                        high_value_input = input("Inserisci soglia massima (premi invio per non specificare il valore della soglia):")
-                        
-                        # Gestione della conversione in float, impostando None se il valore è vuoto
-                        low_value = float(low_value_input) if low_value_input else None
-                        high_value = float(high_value_input) if high_value_input else None
-                        
-                        # Verifica che la soglia minima non sia maggiore di quella massima
-                        if low_value is not None and high_value is not None and low_value > high_value:
-                            print("Errore, hai inserito un valore di soglia minima maggiore di quello di soglia massima")
-                            break
-                        
-                        # Chiamata al metodo gRPC per aggiornare l'utente
-                        response = stub.UpdateUser(user_pb2.UpdateUserRequest(email=email, ticker=ticker, low_value=low_value, high_value=high_value))
-                        print("Risposta UpdateUser:", response.message)
+                    email = input("Inserisci email: ")
+                    ticker = input("Inserisci nuovo ticker: ")
                     
-                    except grpc.RpcError as e:
-                        print(f"Errore gRPC: {e.code()} - {e.details()}")
+                    low_value_input = input("Inserisci soglia minima (premi invio per non specificare): ")
+                    high_value_input = input("Inserisci soglia massima (premi invio per non specificare): ")
 
+                    low_value = float(low_value_input) if low_value_input else None
+                    high_value = float(high_value_input) if high_value_input else None
+                    
+                    # Verifica che la soglia minima non sia maggiore di quella massima
+                    if (low_value is not None and high_value is not None and low_value > high_value):
+                        print("Errore: soglia minima maggiore di quella massima")
+                        continue
+
+                    client.update_user(email, ticker, low_value, high_value)
 
                 case '3':
-                    try:
-                        email = input("Inserisci email: ")
-                        risposta1= input( "Vuoi Eliminare [y] o Aggiornare [n] la soglia minima? Premere qualsiasi altro tasto per passare all'high_value.")
-                        if risposta1== 'y':
-                            response = stub.RemoveThreshold(user_pb2.RemoveThresholdRequest(email=email, low_value=0))
-                        elif risposta1== 'n':
-                            low_value_input = input("Inserisci soglia minima (premi invio per non specificare il valore della soglia):")
-                        
-                        risposta2= input( "Vuoi Eliminare [y] o Aggiornare [n] la soglia massima?")
-                        if risposta2== 'y':
-                            response = stub.RemoveThreshold(user_pb2.RemoveThresholdRequest(email=email, high_value=0))
-                        elif risposta2== 'n':
-                            high_value_input = input("Inserisci soglia massima (premi invio per non specificare il valore della soglia):")
+                    email = input("Inserisci email: ")
                     
-                                        
-                        # Input per le soglie con gestione del valore di default
-                        
-                        # Gestione della conversione in float, impostando None se il valore è vuoto
+                    # Gestione soglia minima
+                    risposta1 = input("Vuoi Eliminare [y], Aggiornare [n] o Ignorare [altro] la soglia minima? ")
+                    low_value = None
+                    remove_low = False
+                    if risposta1 == 'y':
+                        remove_low = True
+                    elif risposta1 == 'n':
+                        low_value_input = input("Inserisci soglia minima: ")
                         low_value = float(low_value_input) if low_value_input else None
+
+                    # Gestione soglia massima
+                    risposta2 = input("Vuoi Eliminare [y], Aggiornare [n] o Ignorare [altro] la soglia massima? ")
+                    high_value = None
+                    remove_high = False
+                    if risposta2 == 'y':
+                        remove_high = True
+                    elif risposta2 == 'n':
+                        high_value_input = input("Inserisci soglia massima: ")
                         high_value = float(high_value_input) if high_value_input else None
-                        
-                        # Verifica che la soglia minima non sia maggiore di quella massima
-                        if low_value is not None and high_value is not None and low_value > high_value:
-                            print("Errore, hai inserito un valore di soglia minima maggiore di quello di soglia massima")
-                            break
-                        
-                        # Chiamata al metodo gRPC per aggiornare l'utente
-                        response = stub.UpdateThreshold(user_pb2.UpdateThresholdRequest(email=email, low_value=low_value, high_value=high_value))
-                        print("Risposta UpdateThreshold:", response.message)
-                    
-                    except grpc.RpcError as e:
-                        print(f"Errore gRPC: {e.code()} - {e.details()}")
 
+                    # Verifica che la soglia minima non sia maggiore di quella massima
+                    if (low_value is not None and high_value is not None and low_value > high_value):
+                        print("Errore: soglia minima maggiore di quella massima")
+                        continue
 
+                    # Se vogliamo rimuovere le soglie
+                    if remove_low or remove_high:
+                        client.remove_threshold(email, remove_low, remove_high)
+                    # Se vogliamo aggiornare le soglie
+                    else:
+                        client.update_threshold(email, low_value, high_value)
 
                 case '4':
-                    try:
-                        email = input("Inserisci email: ")
-                        response = stub.DeleteUser(user_pb2.DeleteUserRequest(email=email))
-                        print("Risposta DeleteUser:", response.message)
-                    except grpc.RpcError as e:
-                        print(f"Errore gRPC: {e.code()} - {e.details()}")
+                    email = input("Inserisci email: ")
+                    client.delete_user(email)
 
-               
                 case '5':
-                    try:
-                        email = input("Inserisci l'email: ")
-                        response = stub.GetLastStockValue(user_pb2.EmailRequest(email=email))
-                        print("Risposta LastStockValue:", response.message, "Valore:", response.value)
-                    except grpc.RpcError as e:
-                        print(f"Errore gRPC: {e.code()} - {e.details()}")
+                    email = input("Inserisci l'email: ")
+                    client.get_last_stock_value(email)
 
                 case '6':
-                    try:
-                        email = input("Inserisci email: ")
-                        count = int(input("Inserisci il numero di valori per la media: "))
-                        response = stub.GetAverageStockValue(user_pb2.AverageStockRequest(email=email, count=count))
-                        print("Risposta AverageStockValue:", response.message, "Valore:", response.value)
-                    except grpc.RpcError as e:
-                        print(f"Errore gRPC: {e.code()} - {e.details()}")
+                    email = input("Inserisci email: ")
+                    count = int(input("Inserisci il numero di valori per la media: "))
+                    client.get_average_stock_value(email, count)
+
+                case '7':
+                    client.get_all_data()
 
                 case '8':
-                    try:
-                        print("Richiesta di tutti i dati al server in corso...")
-                        response = stub.GetAllData(user_pb2.Empty())
-                        print("Risposta Tutti Gli Utenti:")
-                        if not response.data:
-                            print("Nessun dato trovato.")
-                        else:
-                            for data in response.data:
-                                print(data)
-                    except grpc.RpcError as e:
-                        print(f"Errore gRPC: {e.code()} - {e.details()}")
-
-
-                    
-                
-                
-                case '9':
                     print("Uscita in corso...")
                     break
 
                 case _:
-                    print("Inserisci un nuemro da 1 a 7.")
+                    print("Inserisci un numero da 1 a 8.")
+
+        except ValueError:
+            print("Input non valido. Riprova.")
+        except Exception as e:
+            print(f"Si è verificato un errore: {e}")
 
 if __name__ == "__main__":
-    run()
+    main()

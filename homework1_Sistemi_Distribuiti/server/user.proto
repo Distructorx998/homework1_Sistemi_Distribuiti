@@ -2,26 +2,28 @@ syntax = "proto3";
 
 package user;
 
-service UserService {
-  rpc RegisterUser (RegisterUserRequest) returns (RegisterUserResponse);
-  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse);
-  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
+// Servizio per i comandi (modifiche dello stato)
+service UserCommandService {
+  rpc RegisterUser (RegisterUserRequest) returns (CommandResponse);
+  rpc UpdateUser (UpdateUserRequest) returns (CommandResponse);
+  rpc DeleteUser (DeleteUserRequest) returns (CommandResponse);
+  rpc UpdateThreshold (UpdateThresholdRequest) returns (CommandResponse);
+  rpc RemoveThreshold (RemoveThresholdRequest) returns (CommandResponse);
+}
+
+// Servizio per le query (recupero dati)
+service UserQueryService {
   rpc GetAllData (Empty) returns (AllDataResponse);
   rpc GetLastStockValue (EmailRequest) returns (StockValueResponse);
   rpc GetAverageStockValue (AverageStockRequest) returns (StockValueResponse);
-  rpc UpdateThreshold (UpdateThresholdRequest) returns (UpdateThresholdResponse);
-  rpc RemoveThreshold (RemoveThresholdRequest) returns (RemoveThresholdResponse);
 }
 
+// Messaggi per i comandi
 message RegisterUserRequest {
   string email = 1;
   string ticker = 2;
   float low_value = 3;
   float high_value = 4;
-}
-
-message RegisterUserResponse {
-  string message = 1;
 }
 
 message UpdateUserRequest {
@@ -31,18 +33,27 @@ message UpdateUserRequest {
   float high_value = 4;
 }
 
-message UpdateUserResponse {
-  string message = 1;
-}
-
 message DeleteUserRequest {
   string email = 1;
 }
 
-message DeleteUserResponse {
+message UpdateThresholdRequest {
+  string email = 1;
+  float low_value = 2;
+  float high_value = 3;
+}
+
+message RemoveThresholdRequest {
+  string email = 1;
+  float low_value = 2;
+  float high_value = 3;
+}
+
+message CommandResponse {
   string message = 1;
 }
 
+// Messaggi per le query
 message Empty {}
 
 message EmailRequest {
@@ -61,24 +72,4 @@ message StockValueResponse {
 
 message AllDataResponse {
   repeated string data = 1;
-}
-
-message UpdateThresholdRequest {
-  string email = 1;
-  float low_value = 3;
-  float high_value = 4;
-}
-
-message UpdateThresholdResponse {
-  string message = 1;
-}
-
-message RemoveThresholdRequest{
-  string email = 1;
-  float low_value = 2;
-  float high_value = 3;
-}
-
-message RemoveThresholdResponse{
-  string message= 1;
 }

@@ -84,7 +84,7 @@ def main():
                 database="users"
             )
             cursor = conn.cursor()
-        time.sleep(60)
+        time.sleep(3600)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
