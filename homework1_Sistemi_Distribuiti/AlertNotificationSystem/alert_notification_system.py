@@ -11,9 +11,10 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configurazione del consumer Kafka
 consumer_config = {
-    'bootstrap.servers': 'kafka:9092',
-    'group.id': 'email-notification-group',
-    'auto.offset.reset': 'earliest'
+    'bootstrap.servers': 'kafka-broker-1:19092,kafka-broker-2:29092,kafka-broker-3:39092',  # List of Kafka brokers
+    'group.id': 'detailed-consumer-group',  # Consumer group ID
+    'auto.offset.reset': 'earliest',  # Start reading from the earliest offset if no committed offset is available
+    'enable.auto.commit': True  # Enable automatic offset commits
 }
 
 # Configurazione SMTP per inviare email

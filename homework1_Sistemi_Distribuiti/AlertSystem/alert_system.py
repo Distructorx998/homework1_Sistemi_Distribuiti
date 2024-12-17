@@ -5,18 +5,20 @@ import json
 from datetime import datetime
 from confluent_kafka import Producer, Consumer, KafkaException
 
-# Configurazione del consumer Kafka
-consumer_config = {
-    'bootstrap.servers': 'kafka:9092',
-    'group.id': 'group1',
-    'auto.offset.reset': 'earliest',
-    'enable.auto.commit': True,
-    'auto.commit.interval.ms': 5000
+producer_config = {
+    'bootstrap.servers': 'kafka-broker-2:19092,kafka-broker-2:29092,kafka-broker-3:39092',  # List of Kafka brokers
+    'acks': 'all',  # Ensure all in-sync replicas acknowledge the message
+    'max.in.flight.requests.per.connection': 1,  # Ensure ordering of messages
+    'batch.size': 500,  # Maximum size of a batch in bytes
+    'retries': 3  # Number of retries for failed messages
 }
 
 # Configurazione del producer Kafka
-producer_config = {
-    'bootstrap.servers': 'kafka:9092'
+consumer_config = {
+    'bootstrap.servers': 'localhost:19092,localhost:29092,localhost:39092',  # List of Kafka brokers
+    'group.id': 'detailed-consumer-group',  # Consumer group ID
+    'auto.offset.reset': 'earliest',  # Start reading from the earliest offset if no committed offset is available
+    'enable.auto.commit': True  # Enable automatic offset commits
 }
 
 # Istanziazione di consumer e producer

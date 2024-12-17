@@ -8,11 +8,11 @@ from circuit_breaker import CircuitBreaker
 from confluent_kafka import Producer
 
 producer_config = {
-    'bootstrap.servers': 'kafka:9092',
-    'acks': 'all',
-    'batch.size': 500,
-    'max.in.flight.requests.per.connection': 1,
-    'retries': 3
+    'bootstrap.servers': 'kafka-broker-1:19092,kafka-broker-2:29092,kafka-broker-3:39092',  # List of Kafka brokers
+    'acks': 'all',  # Ensure all in-sync replicas acknowledge the message
+    'max.in.flight.requests.per.connection': 1,  # Ensure ordering of messages
+    'batch.size': 500,  # Maximum size of a batch in bytes
+    'retries': 3  # Number of retries for failed messages
 }
 
 producer = Producer(producer_config)
@@ -84,7 +84,7 @@ def main():
                 database="users"
             )
             cursor = conn.cursor()
-        time.sleep(3600)
+        time.sleep(60)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
