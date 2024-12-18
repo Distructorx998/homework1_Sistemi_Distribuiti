@@ -150,7 +150,7 @@ class UserCommandService(user_pb2_grpc.UserCommandServiceServicer):
 
             cursor = self.conn.cursor()
             try:
-                if request.high_value == 0 and request.low_value == 0:
+                if request.high_value == -1 and request.low_value == -1:
                     return user_pb2.CommandResponse(message="Non hai inserito valori da aggiornare")
 
                 cursor.execute("SELECT low_value, high_value FROM users WHERE email = %s", (normalized_email,))
@@ -160,30 +160,37 @@ class UserCommandService(user_pb2_grpc.UserCommandServiceServicer):
                     db_low_value = result[0]
                     db_high_value = result[1]
                     
-                    if request.low_value == 0:
-                        if db_low_value > request.high_value:
+                    if request.low_value == -1:
+                        if db_low_value > request.high_value and request.high_value ==0 :
                             return user_pb2.CommandResponse(message="Errore: il low_value nel database è maggiore dell'high_value che stai cercando di inserire")
                         else: 
                             cursor.execute("UPDATE users SET high_value = %s WHERE email = %s",
                                     (request.high_value, normalized_email))
                             self.conn.commit()
                             self.requestUpdate[key] = 1
+                            if request.high_value ==0:
+                                return user_pb2.CommandeRespoonse (message="User updated successfully and high_value deleted")
                             return user_pb2.CommandResponse(message="User updated successfully")
+                        
                     
-                    if request.high_value == 0:
-                        if db_high_value > request.low_value:
-                            return user_pb2.CommandResponse(message="Errore: l'high_value nel database è maggiore del low_value che stai cercando di inserire")
+                    if request.high_value == -1:
+                        if request.low_value > db_high_value and request.low_value ==0:
+                            return user_pb2.CommandResponse(message="Errore: l'high_value nel database è minore del low_value che stai cercando di inserire")
                         else: 
                             cursor.execute("UPDATE users SET low_value = %s WHERE email = %s",
                                     (request.low_value, normalized_email))
                             self.conn.commit()
                             self.requestUpdate[key] = 1
+                            if request.low_value ==0:
+                                return user_pb2.CommandeRespoonse (message="User updated successfully and low_value deleted")
                             return user_pb2.CommandResponse(message="User updated successfully")
-
+                    
                     cursor.execute("UPDATE users SET low_value = %s, high_value = %s WHERE email = %s",
                                 (request.low_value, request.high_value, normalized_email))
                     self.conn.commit()
                     self.requestUpdate[key] = 1
+                    if request.low_value == 0 and request.high_value == 0: 
+                        return user_pb2.CommandResponse(message="User threshold deleted successfully")
                     return user_pb2.CommandResponse(message="User updated successfully")
 
                 else:
@@ -195,6 +202,7 @@ class UserCommandService(user_pb2_grpc.UserCommandServiceServicer):
             logging.error(f"Unexpected error: {e}")
             return user_pb2.CommandResponse(message="An unexpected error occurred.")
 
+'''
     def RemoveThreshold(self, request, context):
         normalized_email = normalize_email(request.email)
         
@@ -225,6 +233,7 @@ class UserCommandService(user_pb2_grpc.UserCommandServiceServicer):
         except Exception as e:
             logging.error(f"Unexpected error: {e}")
             return user_pb2.CommandResponse(message="An unexpected error occurred.")
+'''
 
 class UserQueryService(user_pb2_grpc.UserQueryServiceServicer):
     def __init__(self):

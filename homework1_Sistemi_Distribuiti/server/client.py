@@ -220,36 +220,32 @@ def main():
                     email = input("Inserisci email: ")
                     
                     # Gestione soglia minima
-                    risposta1 = input("Vuoi Eliminare [y], Aggiornare [n] o Ignorare [altro] la soglia minima? ")
-                    low_value = None
-                    remove_low = False
-                    if risposta1 == 'y':
-                        remove_low = True
-                    elif risposta1 == 'n':
+                    risposta1 = input("Vuoi Eliminare [e], Aggiornare [a] o Ignorare [invio] la soglia minima? ")
+                    low_value = -1
+                    if risposta1 == 'e':
+                        low_value = 0
+                    elif risposta1 == 'a':
                         low_value_input = input("Inserisci soglia minima: ")
                         low_value = float(low_value_input) if low_value_input else None
 
                     # Gestione soglia massima
-                    risposta2 = input("Vuoi Eliminare [y], Aggiornare [n] o Ignorare [altro] la soglia massima? ")
-                    high_value = None
-                    remove_high = False
-                    if risposta2 == 'y':
-                        remove_high = True
-                    elif risposta2 == 'n':
+                    risposta2 = input("Vuoi Eliminare [e], Aggiornare [a] o Ignorare [invio] la soglia massima? ")
+                    high_value = -1
+                    if risposta2 == 'e':
+                        high_value = 0
+                    elif risposta2 == 'a':
                         high_value_input = input("Inserisci soglia massima: ")
                         high_value = float(high_value_input) if high_value_input else None
 
                     # Verifica che la soglia minima non sia maggiore di quella massima
-                    if (low_value is not None and high_value is not None and low_value > high_value):
-                        print("Errore: soglia minima maggiore di quella massima")
-                        continue
-
-                    # Se vogliamo rimuovere le soglie
-                    if remove_low or remove_high:
-                        client.remove_threshold(email, remove_low, remove_high)
-                    # Se vogliamo aggiornare le soglie
-                    else:
-                        client.update_threshold(email, low_value, high_value)
+                    if (low_value > high_value):
+                        if (low_value == 0 or high_value==0 or low_value == -1 or high_value==-1 ):
+                            client.update_threshold(email, low_value, high_value)
+                        else:
+                            print("Errore: soglia minima maggiore di quella massima")
+                            break
+                    client.update_threshold(email, low_value, high_value)
+  
 
                 case '4':
                     email = input("Inserisci email: ")
