@@ -28,8 +28,8 @@ class StockMonitorClient:
             request = user_pb2.RegisterUserRequest(
                 email=email, 
                 ticker=ticker, 
-                low_value=low_value if low_value is not None else 0, 
-                high_value=high_value if high_value is not None else 0
+                low_value=low_value, 
+                high_value=high_value 
             )
             response = self.command_stub.RegisterUser(request)
             print("Risposta RegisterUser:", response.message)

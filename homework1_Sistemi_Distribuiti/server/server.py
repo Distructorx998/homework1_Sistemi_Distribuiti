@@ -161,7 +161,7 @@ class UserCommandService(user_pb2_grpc.UserCommandServiceServicer):
                     db_high_value = result[1]
                     
                     if request.low_value == -1:
-                        if db_low_value > request.high_value and request.high_value ==0 :
+                        if db_low_value > request.high_value and request.high_value !=0 :
                             return user_pb2.CommandResponse(message="Errore: il low_value nel database è maggiore dell'high_value che stai cercando di inserire")
                         else: 
                             cursor.execute("UPDATE users SET high_value = %s WHERE email = %s",
@@ -174,7 +174,7 @@ class UserCommandService(user_pb2_grpc.UserCommandServiceServicer):
                         
                     
                     if request.high_value == -1:
-                        if request.low_value > db_high_value and request.low_value ==0:
+                        if request.low_value > db_high_value and request.low_value !=0:
                             return user_pb2.CommandResponse(message="Errore: l'high_value nel database è minore del low_value che stai cercando di inserire")
                         else: 
                             cursor.execute("UPDATE users SET low_value = %s WHERE email = %s",
@@ -202,38 +202,6 @@ class UserCommandService(user_pb2_grpc.UserCommandServiceServicer):
             logging.error(f"Unexpected error: {e}")
             return user_pb2.CommandResponse(message="An unexpected error occurred.")
 
-'''
-    def RemoveThreshold(self, request, context):
-        normalized_email = normalize_email(request.email)
-        
-        try:
-            cursor = self.conn.cursor()
-            try:
-                # Recupera l'utente per verificare se esiste
-                cursor.execute("SELECT * FROM users WHERE email = %s", (normalized_email,))
-                user = cursor.fetchone()
-                if not user:
-                    return user_pb2.CommandResponse(message="Errore: utente non trovato")
-                
-                # Costruisci la query per aggiornare i valori
-                if hasattr(request, 'low_value') and request.low_value == 0:
-                    cursor.execute("UPDATE users SET low_value = 0 WHERE email = %s", (normalized_email,))
-                if hasattr(request, 'high_value') and request.high_value == 0:
-                    cursor.execute("UPDATE users SET high_value = 0 WHERE email = %s", (normalized_email,))
-                
-                # Salva le modifiche
-                self.conn.commit()
-                return user_pb2.CommandResponse(message="Soglia rimossa correttamente")
-            except mysql.connector.Error as db_err:
-                self.conn.rollback()
-                logging.error(f"Database error: {db_err}")
-                return user_pb2.CommandResponse(message="Errore durante la rimozione della soglia.")
-            finally:
-                cursor.close()
-        except Exception as e:
-            logging.error(f"Unexpected error: {e}")
-            return user_pb2.CommandResponse(message="An unexpected error occurred.")
-'''
 
 class UserQueryService(user_pb2_grpc.UserQueryServiceServicer):
     def __init__(self):
